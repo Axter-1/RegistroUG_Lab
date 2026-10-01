@@ -2,7 +2,8 @@ import machine
 import time
 from lib.threading import Thread
 from lib.wifi_module import ConnectWiFi, leds
-from screen.screen_module import test
+##from screen.screen_module import test
+from lib.speaker_module import play_wav
 time.sleep(3)
 red = "Mega_2.4G_B5D7"
 password = "RtTSugDe"
@@ -10,8 +11,10 @@ password = "RtTSugDe"
 def wifi_task():
     result = ConnectWiFi(red, password)
     if result:
+        play_wav("./src/Conectado.wav")
         print("✅")
     else:
+        play_wav("./src/Desconectado.wav")
         print("❌")
 
 def count_task():

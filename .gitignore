@@ -13,6 +13,7 @@
 
 # production
 /build
+/FrontEnd/uglab_frontend/build/
 
 # misc
 .DS_Store

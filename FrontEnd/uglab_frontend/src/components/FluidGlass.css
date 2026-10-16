@@ -1,0 +1,36 @@
+.fluid-glass {
+  position: relative;
+  isolation: isolate;
+  border-radius: var(--fg-radius, 20px);
+  background: rgba(255, 255, 255, var(--fg-tint, 0.07));
+  -webkit-backdrop-filter: blur(var(--fg-blur, 18px)) saturate(165%);
+  backdrop-filter: blur(var(--fg-blur, 18px)) saturate(165%);
+  box-shadow:
+    0 24px 60px -18px rgba(2, 8, 28, 0.75),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.fluid-glass__defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.fluid-glass__content {
+  position: relative;
+  z-index: 2;
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .fluid-glass {
+    background: rgba(16, 32, 72, 0.82);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fluid-glass__refraction {
+    animation: none;
+  }
+}

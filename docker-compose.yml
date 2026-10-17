@@ -1,0 +1,41 @@
+services:
+  node:
+    container_name: Backend
+    build:
+      context: ./Backend
+      dockerfile: ./Dockerfile
+    user: 'node'
+    working_dir: /app
+    environment:
+      - NODE_ENV=development
+      # Variables para que Node se conecte a MySQL
+      - DB_HOST=${MYSQL_HOST}
+      - DB_PORT=${MYSQL_PORT}
+      - DB_USER=${MYSQL_USER}
+      - DB_PASSWORD=${MYSQL_USER_PASSWORD}
+      - DB_NAME=${MYSQL_NAME}
+      - CI=true
+    volumes:
+      - ./Backend:/app
+      - /app/node_modules
+    ports:
+      - '3000:3000'
+
+# Servicio de Base de Datos (MySQL)
+  db:
+    container_name: mysql-db
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    ports:
+      - '3306:3306'
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+# Declaración de volúmenes persistentes
+volumes:
+  mysql_data:

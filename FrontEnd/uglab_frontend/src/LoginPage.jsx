@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import FluidGlass from './components/FluidGlass';
-import videoFondo from './../public/imagen.webm';
 import './styles.css';
 
 export default function LoginPage() {
@@ -32,7 +31,7 @@ export default function LoginPage() {
         aria-hidden="true"
         tabIndex={-1}
       >
-        <source src={videoFondo} type="video/webm" />
+        <source src="/imagen.webm" type="video/webm" />
       </video>
       <FluidGlass className="tarjeta" blur={20} distortion={5} radius={24}>
         <div className="logo-slot">

@@ -56,7 +56,7 @@ body {
   padding: 32px;
   display: flex;
   flex-direction: column;
-  gap: 22px;
+  /* gap: 22px; */
   background: rgba(0, 40, 85, 0.35);
   border: 1px solid rgba(0, 17, 47, 0.25);
   border-radius: 22px;

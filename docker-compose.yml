@@ -5,16 +5,20 @@ services:
       context: ./Backend
       dockerfile: ./Dockerfile
     user: 'node'
-    working_dir: /app
+    depends_on:
+      - db
     environment:
       - NODE_ENV=development
       # Variables para que Node se conecte a MySQL
-      - DB_HOST=${MYSQL_HOST}
-      - DB_PORT=${MYSQL_PORT}
-      - DB_USER=${MYSQL_USER}
-      - DB_PASSWORD=${MYSQL_USER_PASSWORD}
-      - DB_NAME=${MYSQL_NAME}
+      - MYSQL_HOST=db
+      - MYSQL_PORT=${MYSQL_PORT}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_NAME=${MYSQL_NAME}
       - CI=true
+      - JWT_SECRET=${JWT_SECRET}
+      - BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET}
+      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN}
     volumes:
       - ./Backend:/app
       - /app/node_modules
@@ -28,7 +32,7 @@ services:
     restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_DATABASE: ${MYSQL_NAME}
       MYSQL_USER: ${MYSQL_USER}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     ports:

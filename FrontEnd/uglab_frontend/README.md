@@ -2,6 +2,26 @@
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+## Ejecutar con Docker
+
+Necesitas tener Docker Desktop instalado y en ejecución. Desde la raíz del
+repositorio, ejecuta:
+
+```powershell
+docker compose up --build
+```
+
+Abre [http://localhost:3000](http://localhost:3000). El código del frontend se
+monta en el contenedor para aplicar cambios al guardar; las dependencias se
+instalan dentro de Docker, no en Windows. Para detenerlo, presiona `Ctrl+C` y
+ejecuta `docker compose down`.
+
+Este Compose levanta únicamente la interfaz React. No ejecuta ni el firmware
+ESP32 ni un servicio de API.
+
+Consulta [la guía detallada de Docker](../../DOCKER.md) para instrucciones de
+configuración, acceso desde otras computadoras y solución de problemas.
+
 ## Available Scripts
 
 In the project directory, you can run:

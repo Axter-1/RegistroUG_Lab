@@ -1,0 +1,14 @@
+services:
+  frontend:
+    build:
+      context: ./FrontEnd/uglab_frontend
+    ports:
+      - "3000:3000"
+    environment:
+      HOST: 0.0.0.0
+      PORT: 3000
+      BROWSER: none
+      CHOKIDAR_USEPOLLING: "true"
+    volumes:
+      - ./FrontEnd/uglab_frontend:/app
+      - /app/node_modules

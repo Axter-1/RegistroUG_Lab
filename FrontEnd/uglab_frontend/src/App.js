@@ -1,5 +1,8 @@
 import { lazy, Suspense } from 'react';
 import LoginPage from './LoginPage';
+// import Dashboard from "./pages/Dashboard";
+// import usuarios from "./pages/usuarios";
+// import Login from "./pages/Login";
 
 const ConsultaAccesos = lazy(() => import('./consultaAccesos/ConsultaAccesos'));
 

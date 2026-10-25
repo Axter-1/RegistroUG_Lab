@@ -1,8 +1,12 @@
+import { authClient } from "./lib/auth-client.ts"; //import the auth client
 import { useState } from 'react';
 import FluidGlass from './components/FluidGlass';
+import { useAuth } from "./context/AuthContext";
+
 import './styles.css';
 
 export default function LoginPage() {
+  const { setToken } = useAuth();
   const [correo, setCorreo] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -13,10 +17,33 @@ export default function LoginPage() {
     setError('');
     setEnviando(true);
 
-    // Replace this temporary response when the authentication API is available.
-    await new Promise((resolve) => setTimeout(resolve, 600));
-    setError('Error: correo o contraseña incorrectos.');
-    setEnviando(false);
+    try {
+      await authClient.signIn.email({
+        email: correo,
+        password,
+        rememberMe: true,
+        callbackURL: 'http://localhost:3001/usuarios' // Replace with your dashboard URL
+      }, {
+        onSuccess: () => {
+          alert('Inicio de sesión exitoso');
+        },
+        onError: (ctx) => {
+          setError('Error: correo o contraseña incorrectos.');
+          alert(ctx.error.message);
+        },
+      });
+
+      const { data: tokenData, error} = await authClient.token();
+      if (tokenData) {
+        setToken(tokenData); // Guardar JWT en el contexto
+      } else {
+        alert("Error de login: " + (error?.message || "Desconocido"));
+      }
+    } catch {
+      setError('No se pudo conectar con el servicio de inicio de sesión.');
+    } finally {
+      setEnviando(false);
+    }
   }
 
   return (
@@ -31,7 +58,7 @@ export default function LoginPage() {
         aria-hidden="true"
         tabIndex={-1}
       >
-        <source src="imagen.webm" type="video/webm" />
+        <source src="/imagen.webm" type="video/webm" />
       </video>
       <FluidGlass className="tarjeta" blur={20} distortion={5} radius={24}>
         <div className="logo-slot">

@@ -64,6 +64,7 @@ export default function LoginPage() {
               type="password"
               autoComplete="current-password"
               placeholder="••••••••"
+              minLength={8}
               value={password}
               onChange={(event) => setPassword(event.target.value)}
               aria-invalid={Boolean(error)}

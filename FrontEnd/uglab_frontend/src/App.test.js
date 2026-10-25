@@ -8,3 +8,13 @@ test('renders the laboratory access login form', () => {
   expect(screen.getByLabelText(/contraseña/i)).toBeInTheDocument();
   expect(screen.getByRole('button', { name: /iniciar sesión/i })).toBeInTheDocument();
 });
+
+test('renders the access consultation page at /accesos', async () => {
+  const rutaAnterior = window.location.pathname;
+  window.history.pushState({}, '', '/accesos');
+
+  render(<App />);
+  expect(await screen.findByRole('heading', { name: /consulta de accesos/i })).toBeInTheDocument();
+
+  window.history.pushState({}, '', rutaAnterior);
+});

@@ -232,7 +232,8 @@
 }
 
 .registro-manual__campo input,
-.registro-manual__campo select {
+.registro-manual__campo select,
+.registro-manual__campo textarea {
   width: 100%;
   padding: 10px 12px;
   font: inherit;
@@ -243,7 +244,8 @@
 }
 
 .registro-manual__campo input:focus-visible,
-.registro-manual__campo select:focus-visible {
+.registro-manual__campo select:focus-visible,
+.registro-manual__campo textarea:focus-visible {
   outline: 2px solid var(--azul);
   outline-offset: 2px;
   border-color: var(--azul);
@@ -476,13 +478,19 @@
   background: #f1f3f5;
 }
 
+.estado--pendiente {
+  color: var(--oro-texto);
+  background: var(--oro-tenue);
+  border: 1px solid rgba(181, 163, 106, 0.6);
+}
+
 .estado--registrada {
   color: var(--olivo-texto);
   background: var(--olivo-tenue);
   border: 1px solid rgba(134, 138, 8, 0.4);
 }
 
-.estado--cerrada-por-nuevo {
+.estado--cerrado-por-registro {
   color: var(--oro-texto);
   background: var(--oro-tenue);
   border: 1px solid rgba(181, 163, 106, 0.6);

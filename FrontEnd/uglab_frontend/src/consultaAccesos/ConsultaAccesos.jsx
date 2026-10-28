@@ -1,123 +1,201 @@
-import { useEffect, useMemo, useState } from 'react'
-import BarraLateral from './components/BarraLateral'
-import Filtros from './components/Filtros'
-import TablaAccesos from './components/TablaAccesos'
-import { cargarAccesos } from './datos'
-import './consultaAccesos.css'
+import { useEffect, useState } from "react";
+import BarraLateral from "./components/BarraLateral";
+import Filtros from "./components/Filtros";
+import TablaAccesos from "./components/TablaAccesos";
+import {
+  agregarObservacion,
+  anularAcceso,
+  cargarAccesos,
+  crearAccesoManual,
+  editarAcceso,
+} from "./datos";
+import { authClient } from "../lib/auth-client.ts";
+import "./consultaAccesos.css";
 
 const FILTROS_INICIALES = {
-  fecha: 'Hoy',
-  laboratorio: 'Todos',
-  grupo: 'Todos',
-  uda: 'Todas',
-  nua: '',
-}
+  fecha: "Todas",
+  laboratorio: "Todos",
+  grupo: "Todos",
+  uda: "Todas",
+  nua: "",
+};
 
-/** Filtrado en cliente. Si filtras en el servidor, borra esto y manda
- *  `filtros` como query params en cargarAccesos(). */
-function aplicarFiltros(filas, filtros, incluirAnulados) {
-  const busqueda = filtros.nua.trim().toLowerCase()
+const OPCIONES_INICIALES = { laboratorios: [], grupos: [], udas: [] };
+const ENCARGADO = "Encargado de laboratorio";
 
-  return filas.filter((fila) => {
-    if (!incluirAnulados && fila.anulado) return false
-    if (filtros.laboratorio !== 'Todos' && fila.laboratorio !== filtros.laboratorio) return false
-    if (filtros.grupo !== 'Todos' && fila.grupo !== filtros.grupo) return false
-    if (filtros.uda !== 'Todas' && fila.uda !== filtros.uda) return false
-    if (busqueda && !fila.nua.toLowerCase().includes(busqueda)) return false
-    return true
-  })
+function errorDeApi(error) {
+  return error.response?.data?.error || "No se pudo completar la solicitud.";
 }
 
 export default function ConsultaAccesos() {
-  const [filtros, setFiltros] = useState(FILTROS_INICIALES)
-  const [vista, setVista] = useState('consolidada')
-  const [incluirAnulados, setIncluirAnulados] = useState(false)
-  const [mostrarRegistroManual, setMostrarRegistroManual] = useState(false)
-  const [registroManual, setRegistroManual] = useState({ nua: '', laboratorio: '', udaRazon: '' })
-  const [accesos, setAccesos] = useState([])
-  const [cargando, setCargando] = useState(true)
-  const [error, setError] = useState('')
-  const [mensaje, setMensaje] = useState('')
+  const [filtros, setFiltros] = useState(FILTROS_INICIALES);
+  const [vista, setVista] = useState("consolidada");
+  const [incluirAnulados, setIncluirAnulados] = useState(false);
+  const [mostrarRegistroManual, setMostrarRegistroManual] = useState(false);
+  const [registroManual, setRegistroManual] = useState({
+    nua: "",
+    laboratorio: "",
+    grupo: "",
+    tipoContenido: "uda",
+    contenido: "",
+  });
+  const [accesos, setAccesos] = useState([]);
+  const [opciones, setOpciones] = useState(OPCIONES_INICIALES);
+  const [rol, setRol] = useState("");
+  const [cargando, setCargando] = useState(true);
+  const [guardando, setGuardando] = useState(false);
+  const [error, setError] = useState("");
+  const [mensaje, setMensaje] = useState("");
+  const [accion, setAccion] = useState(null);
+  const [valorAccion, setValorAccion] = useState("");
+  const [horas, setHoras] = useState({ hora_entrada: "", hora_salida: "" });
+  const [recarga, setRecarga] = useState(0);
 
   useEffect(() => {
-    let vigente = true
-    cargarAccesos()
-      .then((datos) => vigente && setAccesos((actuales) => [...actuales, ...datos]))
-      .catch(() => vigente && setError('No se pudieron cargar los accesos.'))
-      .finally(() => vigente && setCargando(false))
-    return () => {
-      vigente = false
-    }
-  }, [])
+    const controller = new AbortController();
+    const timeout = setTimeout(() => {
+      setCargando(true);
+      setError("");
+      cargarAccesos(filtros, incluirAnulados, controller.signal)
+        .then((resultado) => {
+          setAccesos(resultado.accesos);
+          setOpciones(resultado.opciones);
+          setRol(resultado.role);
+        })
+        .catch((requestError) => {
+          if (requestError.code !== "ERR_CANCELED") {
+            setAccesos([]);
+            setOpciones(OPCIONES_INICIALES);
+            setRol("");
+            setError(errorDeApi(requestError));
+          }
+        })
+        .finally(() => {
+          if (!controller.signal.aborted) setCargando(false);
+        });
+    }, 200);
 
-  const filas = useMemo(
-    () => aplicarFiltros(accesos, filtros, incluirAnulados),
-    [accesos, filtros, incluirAnulados]
-  )
+    return () => {
+      clearTimeout(timeout);
+      controller.abort();
+    };
+  }, [filtros, incluirAnulados, recarga]);
 
   function cambiarFiltro(id, valor) {
-    setFiltros((previos) => ({ ...previos, [id]: valor }))
-  }
-
-  function registrarEntrada(evento) {
-    evento.preventDefault()
-    const ahora = new Date()
-    const fecha = [
-      String(ahora.getDate()).padStart(2, '0'),
-      String(ahora.getMonth() + 1).padStart(2, '0'),
-      ahora.getFullYear(),
-    ].join('/')
-    const entrada = [
-      String(ahora.getHours()).padStart(2, '0'),
-      String(ahora.getMinutes()).padStart(2, '0'),
-    ].join(':')
-    const uda = /^UDA(?:\s|$)/i.test(registroManual.udaRazon.trim())
-      ? registroManual.udaRazon.trim()
-      : null
-
-    setAccesos((actuales) => [
-      {
-        nua: registroManual.nua.trim(),
-        laboratorio: registroManual.laboratorio,
-        fecha,
-        entrada,
-        salida: null,
-        estadoSalida: 'no-aplica',
-        udaRazon: registroManual.udaRazon.trim(),
-        grupo: null,
-        uda,
-        origen: 'Manual',
-        anulado: false,
-      },
-      ...actuales,
-    ])
-    setRegistroManual({ nua: '', laboratorio: '', udaRazon: '' })
-    setMostrarRegistroManual(false)
-    setMensaje('Entrada manual añadida a la lista.')
+    setFiltros((previos) => ({ ...previos, [id]: valor }));
   }
 
   function manejarAccion(tipo, fila) {
-    // Engancha aquí tus modales / llamadas a la API.
-    console.log(tipo, fila)
+    setError("");
+    setMensaje("");
+    setAccion({ tipo, fila });
+    setValorAccion("");
+    setHoras({
+      hora_entrada: fila.entrada || "",
+      hora_salida: fila.salida || "",
+    });
   }
+
+  async function enviarAccion(evento) {
+    evento.preventDefault();
+    if (!accion) return;
+
+    setGuardando(true);
+    setError("");
+    setMensaje("");
+    try {
+      if (accion.tipo === "obs") {
+        await agregarObservacion(accion.fila.id, valorAccion);
+        setMensaje("Observación añadida.");
+      } else if (accion.tipo === "anular") {
+        await anularAcceso(accion.fila.id, valorAccion);
+        setMensaje("Acceso anulado.");
+      } else {
+        const cambios = {};
+        if (horas.hora_entrada !== accion.fila.entrada) {
+          cambios.hora_entrada = horas.hora_entrada;
+        }
+        if ((horas.hora_salida || null) !== (accion.fila.salida || null)) {
+          cambios.hora_salida = horas.hora_salida || null;
+        }
+        if (Object.keys(cambios).length === 0) {
+          setError("Modifica al menos una hora antes de guardar.");
+          return;
+        }
+        await editarAcceso(accion.fila.id, cambios);
+        setMensaje("Horario actualizado.");
+      }
+      setAccion(null);
+      setRecarga((actual) => actual + 1);
+    } catch (requestError) {
+      setError(errorDeApi(requestError));
+    } finally {
+      setGuardando(false);
+    }
+  }
+
+  async function registrarEntrada(evento) {
+    evento.preventDefault();
+    setGuardando(true);
+    setError("");
+    setMensaje("");
+    try {
+      const registro = {
+        nua: registroManual.nua.trim(),
+        id_laboratorio: registroManual.laboratorio,
+        id_grupo: registroManual.grupo || undefined,
+        [registroManual.tipoContenido === "uda" ? "uda" : "razon_entrada"]:
+          registroManual.contenido.trim(),
+      };
+      await crearAccesoManual(registro);
+      setRegistroManual({
+        nua: "",
+        laboratorio: "",
+        grupo: "",
+        tipoContenido: "uda",
+        contenido: "",
+      });
+      setMostrarRegistroManual(false);
+      setMensaje("Entrada manual registrada.");
+      setRecarga((actual) => actual + 1);
+    } catch (requestError) {
+      setError(errorDeApi(requestError));
+    } finally {
+      setGuardando(false);
+    }
+  }
+
+  async function cerrarSesion() {
+    try {
+      await authClient.signOut();
+      window.location.assign("/");
+    } catch (requestError) {
+      setError(errorDeApi(requestError));
+    }
+  }
+
+  const esEncargado = rol === ENCARGADO;
 
   return (
     <div className="disposicion">
-      <BarraLateral activa="Accesos" />
+      <BarraLateral activa="Accesos" sesion={rol || "Verificando"} onSalir={cerrarSesion} />
 
       <main className="contenido">
         <header className="encabezado">
           <h1>Consulta de accesos</h1>
-          <button
-            type="button"
-            className="boton-primario"
-            onClick={() => {
-              setMensaje('')
-              setMostrarRegistroManual(true)
-            }}
-          >
-            + Registrar entrada manual
-          </button>
+          {esEncargado && (
+            <button
+              type="button"
+              className="boton-primario"
+              onClick={() => {
+                setError("");
+                setMensaje("");
+                setMostrarRegistroManual(true);
+              }}
+            >
+              + Registrar entrada manual
+            </button>
+          )}
         </header>
 
         {mostrarRegistroManual && (
@@ -129,7 +207,7 @@ export default function ConsultaAccesos() {
               aria-labelledby="titulo-registro-manual"
             >
               <h2 id="titulo-registro-manual">Registrar entrada manual</h2>
-              <p>La fecha, la hora de entrada y el origen se asignarán automáticamente.</p>
+              <p>Fecha, hora de entrada, estado y origen se asignan automáticamente.</p>
               <form className="formulario-manual" onSubmit={registrarEntrada}>
                 <div className="registro-manual__campo">
                   <label htmlFor="registro-nua">NUA</label>
@@ -137,7 +215,7 @@ export default function ConsultaAccesos() {
                     id="registro-nua"
                     type="text"
                     inputMode="numeric"
-                    pattern="[0-9]+"
+                    pattern="[0-9]{1,8}"
                     title="Escribe el NUA usando solo números."
                     value={registroManual.nua}
                     onChange={(evento) =>
@@ -161,25 +239,88 @@ export default function ConsultaAccesos() {
                     required
                   >
                     <option value="">Selecciona un laboratorio</option>
-                    <option value="Lab. 1">Lab. 1</option>
-                    <option value="Lab. 2">Lab. 2</option>
+                    {opciones.laboratorios.map((laboratorio) => (
+                      <option key={laboratorio.id} value={laboratorio.id}>
+                        {laboratorio.nombre}
+                      </option>
+                    ))}
                   </select>
                 </div>
                 <div className="registro-manual__campo">
-                  <label htmlFor="registro-uda-razon">UDA o razón</label>
-                  <input
-                    id="registro-uda-razon"
-                    type="text"
-                    maxLength={120}
-                    value={registroManual.udaRazon}
+                  <label htmlFor="registro-grupo">Grupo (opcional)</label>
+                  <select
+                    id="registro-grupo"
+                    value={registroManual.grupo}
+                    onChange={(evento) =>
+                      setRegistroManual((actual) => ({ ...actual, grupo: evento.target.value }))
+                    }
+                  >
+                    <option value="">Sin grupo</option>
+                    {opciones.grupos.map((grupo) => (
+                      <option key={grupo.id} value={grupo.id}>
+                        {grupo.nombre}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="registro-manual__campo">
+                  <label htmlFor="registro-tipo-contenido">UDA o razón</label>
+                  <select
+                    id="registro-tipo-contenido"
+                    value={registroManual.tipoContenido}
                     onChange={(evento) =>
                       setRegistroManual((actual) => ({
                         ...actual,
-                        udaRazon: evento.target.value,
+                        tipoContenido: evento.target.value,
+                        contenido: "",
                       }))
                     }
-                    required
-                  />
+                  >
+                    <option value="uda">UDA</option>
+                    <option value="razon">Razón</option>
+                  </select>
+                </div>
+                <div className="registro-manual__campo">
+                  <label htmlFor="registro-contenido">
+                    {registroManual.tipoContenido === "uda" ? "UDA" : "Razón"}
+                  </label>
+                  {registroManual.tipoContenido === "uda" ? (
+                    <input
+                      id="registro-contenido"
+                      type="text"
+                      maxLength={100}
+                      list="registro-opciones-uda"
+                      value={registroManual.contenido}
+                      onChange={(evento) =>
+                        setRegistroManual((actual) => ({
+                          ...actual,
+                          contenido: evento.target.value,
+                        }))
+                      }
+                      required
+                    />
+                  ) : (
+                    <input
+                      id="registro-contenido"
+                      type="text"
+                      maxLength={100}
+                      value={registroManual.contenido}
+                      onChange={(evento) =>
+                        setRegistroManual((actual) => ({
+                          ...actual,
+                          contenido: evento.target.value,
+                        }))
+                      }
+                      required
+                    />
+                  )}
+                  {registroManual.tipoContenido === "uda" && (
+                    <datalist id="registro-opciones-uda">
+                      {opciones.udas.filter((uda) => uda.activo).map((uda) => (
+                        <option key={uda.id} value={uda.nombre} />
+                      ))}
+                    </datalist>
+                  )}
                 </div>
                 <div className="registro-manual__acciones">
                   <button
@@ -189,8 +330,89 @@ export default function ConsultaAccesos() {
                   >
                     Cancelar
                   </button>
-                  <button type="submit" className="boton-primario">
-                    Registrar entrada
+                  <button type="submit" className="boton-primario" disabled={guardando}>
+                    {guardando ? "Registrando…" : "Registrar entrada"}
+                  </button>
+                </div>
+              </form>
+            </section>
+          </div>
+        )}
+
+        {accion && (
+          <div className="modal-fondo">
+            <section
+              className="modal-registro"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="titulo-accion"
+            >
+              <h2 id="titulo-accion">
+                {accion.tipo === "obs"
+                  ? "Añadir observación"
+                  : accion.tipo === "anular"
+                    ? "Anular acceso"
+                    : "Corregir horario"}
+              </h2>
+              <p>NUA {accion.fila.nua} · {accion.fila.fecha} · {accion.fila.laboratorio}</p>
+              <form className="formulario-manual" onSubmit={enviarAccion}>
+                {accion.tipo === "hora" ? (
+                  <>
+                    <div className="registro-manual__campo">
+                      <label htmlFor="hora-entrada">Hora entrada</label>
+                      <input
+                        id="hora-entrada"
+                        type="time"
+                        value={horas.hora_entrada}
+                        onChange={(evento) =>
+                          setHoras((actual) => ({
+                            ...actual,
+                            hora_entrada: evento.target.value,
+                          }))
+                        }
+                        required
+                      />
+                    </div>
+                    <div className="registro-manual__campo">
+                      <label htmlFor="hora-salida">Hora salida (opcional)</label>
+                      <input
+                        id="hora-salida"
+                        type="time"
+                        value={horas.hora_salida}
+                        onChange={(evento) =>
+                          setHoras((actual) => ({
+                            ...actual,
+                            hora_salida: evento.target.value,
+                          }))
+                        }
+                      />
+                    </div>
+                  </>
+                ) : (
+                  <div className="registro-manual__campo">
+                    <label htmlFor="valor-accion">
+                      {accion.tipo === "obs" ? "Observación" : "Justificación obligatoria"}
+                    </label>
+                    <textarea
+                      id="valor-accion"
+                      rows="4"
+                      maxLength={accion.tipo === "obs" ? 5000 : 1000}
+                      value={valorAccion}
+                      onChange={(evento) => setValorAccion(evento.target.value)}
+                      required
+                    />
+                  </div>
+                )}
+                <div className="registro-manual__acciones">
+                  <button
+                    type="button"
+                    className="boton-secundario"
+                    onClick={() => setAccion(null)}
+                  >
+                    Cancelar
+                  </button>
+                  <button type="submit" className="boton-primario" disabled={guardando}>
+                    {guardando ? "Guardando…" : "Guardar"}
                   </button>
                 </div>
               </form>
@@ -199,23 +421,23 @@ export default function ConsultaAccesos() {
         )}
 
         {mensaje && <p className="mensaje-exito" role="status">{mensaje}</p>}
-        <Filtros valores={filtros} onCambiar={cambiarFiltro} />
+        <Filtros valores={filtros} opciones={opciones} onCambiar={cambiarFiltro} />
 
         <div className="barra-vista">
           <div className="grupo-chips" role="group" aria-label="Vista">
             <button
               type="button"
-              className={`chip ${vista === 'consolidada' ? 'is-activo' : ''}`}
-              aria-pressed={vista === 'consolidada'}
-              onClick={() => setVista('consolidada')}
+              className={`chip ${vista === "consolidada" ? "is-activo" : ""}`}
+              aria-pressed={vista === "consolidada"}
+              onClick={() => setVista("consolidada")}
             >
               Vista: Consolidada
             </button>
             <button
               type="button"
-              className={`chip ${vista === 'detalle' ? 'is-activo' : ''}`}
-              aria-pressed={vista === 'detalle'}
-              onClick={() => setVista('detalle')}
+              className={`chip ${vista === "detalle" ? "is-activo" : ""}`}
+              aria-pressed={vista === "detalle"}
+              onClick={() => setVista("detalle")}
             >
               Detalle (todas las entradas)
             </button>
@@ -225,15 +447,15 @@ export default function ConsultaAccesos() {
             <input
               type="checkbox"
               checked={incluirAnulados}
-              onChange={(e) => setIncluirAnulados(e.target.checked)}
+              onChange={(evento) => setIncluirAnulados(evento.target.checked)}
             />
             Incluir anulados
           </label>
 
           <span className="conteo" aria-live="polite">
             {cargando
-              ? 'Cargando…'
-              : `${filas.length} ${filas.length === 1 ? 'asistencia' : 'asistencias'}`}
+              ? "Cargando…"
+              : `${accesos.length} ${accesos.length === 1 ? "asistencia" : "asistencias"}`}
           </span>
         </div>
 
@@ -241,15 +463,14 @@ export default function ConsultaAccesos() {
         {cargando ? (
           <p className="vacio">Cargando accesos…</p>
         ) : (
-          <TablaAccesos filas={filas} esAdmin onAccion={manejarAccion} />
+          <TablaAccesos filas={accesos} esAdmin={esEncargado} onAccion={manejarAccion} />
         )}
 
         <p className="nota">
-          Docente: solo ve accesos de sus grupos y edita observaciones. Corregir hora y anular (con
-          justificación obligatoria) solo lo hace el administrador. Cada cambio queda en el
-          historial.
+          Docente: solo consulta grupos asignados y puede añadir observaciones. El encargado de
+          laboratorio puede corregir horarios y anular accesos con justificación.
         </p>
       </main>
     </div>
-  )
+  );
 }

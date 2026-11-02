@@ -1,34 +1,19 @@
 // src/context/AuthContext.jsx
-import React, { createContext, useState, useEffect, useContext } from "react";
-import { setupAxiosInterceptors } from "../api/axiosClient";
+import { Navigate, Outlet } from "react-router";
+import { authClient } from "../lib/auth-client.ts";
 
-const AuthContext = createContext({
-  token: null,
-  setToken: () => {},
-  api: null,
-});
+export function IsLogged({ requiredRole }) {
+  const { data: session, isPending } = authClient.useSession();
+  if (isPending) return <p>Verificando sesión...</p>;
+  if (!session) return <Navigate to="/" replace />;
 
-export const AuthProvider = ({ children }) => {
-  const [token, setToken] = useState(null);
-  const [api, setApi] = useState(null);
+  const allowedRoles = Array.isArray(requiredRole) ? requiredRole : [requiredRole];
+  if (
+    requiredRole !== undefined &&
+    !allowedRoles.includes(Number(session.user.id_rol))
+  ) {
+    return <h1>Accesso Denegado</h1>;
+  }
 
-  useEffect(() => {
-    try {
-      const client = setupAxiosInterceptors(setToken);
-      if (typeof client?.get !== "function") {
-        throw new TypeError("El cliente API no proporciona el método get.");
-      }
-      setApi(() => client);
-    } catch (error) {
-      console.error("Error al inicializar el cliente API:", error);
-    }
-  }, []);
-
-  return (
-    <AuthContext.Provider value={{ token, setToken, api }}>
-      {children}
-    </AuthContext.Provider>
-  );
-};
-
-export const useAuth = () => useContext(AuthContext);
+  return <Outlet />;
+}

@@ -1,12 +1,10 @@
 import { authClient } from "./lib/auth-client.ts"; //import the auth client
 import { useState } from 'react';
 import FluidGlass from './components/FluidGlass';
-import { useAuth } from "./context/AuthContext";
 
 import './styles.css';
 
 export default function LoginPage() {
-  const { setToken } = useAuth();
   const [correo, setCorreo] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -22,9 +20,9 @@ export default function LoginPage() {
         email: correo,
         password,
         rememberMe: true,
-        callbackURL: 'http://localhost:3001/usuarios' // Replace with your dashboard URL
+        callbackURL: 'http://localhost:3001/accesos' // Replace with your dashboard URL
       }, {
-        onSuccess: () => {
+        onSuccess: (ctx) => {
           alert('Inicio de sesión exitoso');
         },
         onError: (ctx) => {
@@ -32,13 +30,6 @@ export default function LoginPage() {
           alert(ctx.error.message);
         },
       });
-
-      const { data: tokenData, error} = await authClient.token();
-      if (tokenData) {
-        setToken(tokenData); // Guardar JWT en el contexto
-      } else {
-        alert("Error de login: " + (error?.message || "Desconocido"));
-      }
     } catch {
       setError('No se pudo conectar con el servicio de inicio de sesión.');
     } finally {

@@ -17,12 +17,12 @@ if (!Number.isInteger(port) || port < 1 || port > 65535) {
   throw new Error('MYSQL_PORT debe ser un puerto válido.');
 }
 
-export const database = createPool({
+export const conexion = createPool({
   host: process.env.MYSQL_HOST,
   port,
   user: 'root' || process.env.MYSQL_USER,
-  password: 'secret_password'|| process.env.MYSQL_ROOT_PASSWORD || process.env.MYSQL_PASSWORD || '',
-  database: process.env.MYSQL_NAME,
+  password: 'secret_password' || process.env.MYSQL_PASSWORD || process.env.MYSQL_ROOT_PASSWORD || '',
+  database: process.env.MYSQL_NAME || process.env.MYSQL_DATABASE,
   waitForConnections: true,
   connectionLimit: 10,
 });

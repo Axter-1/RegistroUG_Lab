@@ -5,7 +5,11 @@ const SECCIONES = [
   { nombre: 'Administración', ruta: '/administracion' },
 ]
 
-export default function BarraLateral({ activa = 'Accesos', sesion = 'Administrador' }) {
+export default function BarraLateral({
+  activa = 'Accesos',
+  sesion = 'Administrador',
+  onSalir,
+}) {
   return (
     <aside className="barra">
       <div className="barra__marca">Laboratorios</div>
@@ -30,7 +34,7 @@ export default function BarraLateral({ activa = 'Accesos', sesion = 'Administrad
 
       <div className="barra__sesion">
         <span className="barra__sesion-rol">Sesión: {sesion}</span>
-        <button type="button" className="barra__salir">
+        <button type="button" className="barra__salir" onClick={onSalir}>
           Cerrar sesión
         </button>
       </div>

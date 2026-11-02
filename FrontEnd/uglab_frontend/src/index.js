@@ -1,28 +1,31 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import './index.css';
-import { BrowserRouter , Routes, Route} from "react-router";
 import reportWebVitals from './reportWebVitals';
+
 import LoginPage from './LoginPage';
 import App from './App';
-import Usuarios from './pages/Usuarios'
-import { AuthProvider } from "./context/AuthContext";
 
+import { IsLogged } from "./context/AuthContext";
+import { BrowserRouter , Routes, Route, Navigate} from "react-router";
+
+import './index.css';
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <AuthProvider>
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<LoginPage />} />
-          <Route path="accesos" element={<App />} />
+
+          <Route element={<IsLogged requiredRole={[2, 3]} />}>
+            <Route path="accesos" element={<App />} />
+          </Route>
+
           <Route path="agendas" element={<App />} />
           <Route path="reportes" element={<App />} />
           <Route path="administracion" element={<App />} />
-          <Route path="usuarios" element={<Usuarios />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
-    </AuthProvider>
   </React.StrictMode>
 );
 

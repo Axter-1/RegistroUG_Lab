@@ -1,14 +1,28 @@
-const CAMPOS_SELECT = [
-  { id: 'fecha', etiqueta: 'Fecha / rango', opciones: ['Hoy', 'Ayer', 'Últimos 7 días', 'Este mes'] },
-  { id: 'laboratorio', etiqueta: 'Laboratorio', opciones: ['Todos', 'Lab. 1', 'Lab. 2'] },
-  { id: 'grupo', etiqueta: 'Grupo', opciones: ['Todos', '1°A', '2°B'] },
-  { id: 'uda', etiqueta: 'UDA', opciones: ['Todas', 'UDA 1', 'UDA 2'] },
-]
+const CAMPOS_FECHA = ['Todas', 'Hoy', 'Ayer', 'Últimos 7 días', 'Este mes']
 
-export default function Filtros({ valores, onCambiar }) {
+export default function Filtros({ valores, opciones, onCambiar }) {
+  const campos = [
+    { id: 'laboratorio', etiqueta: 'Laboratorio', todas: 'Todos', opciones: opciones.laboratorios },
+    { id: 'grupo', etiqueta: 'Grupo', todas: 'Todos', opciones: opciones.grupos },
+    { id: 'uda', etiqueta: 'UDA', todas: 'Todas', opciones: opciones.udas },
+  ]
+
   return (
     <div className="filtros">
-      {CAMPOS_SELECT.map(({ id, etiqueta, opciones }) => (
+      <div className="filtro">
+        <label htmlFor="filtro-fecha">Fecha / rango</label>
+        <select
+          id="filtro-fecha"
+          value={valores.fecha}
+          onChange={(e) => onCambiar('fecha', e.target.value)}
+        >
+          {CAMPOS_FECHA.map((opcion) => (
+            <option key={opcion} value={opcion}>{opcion}</option>
+          ))}
+        </select>
+      </div>
+
+      {campos.map(({ id, etiqueta, todas, opciones: valoresOpciones }) => (
         <div className="filtro" key={id}>
           <label htmlFor={`filtro-${id}`}>{etiqueta}</label>
           <select
@@ -16,9 +30,10 @@ export default function Filtros({ valores, onCambiar }) {
             value={valores[id]}
             onChange={(e) => onCambiar(id, e.target.value)}
           >
-            {opciones.map((opcion) => (
-              <option key={opcion} value={opcion}>
-                {opcion}
+            <option value={todas}>{todas}</option>
+            {valoresOpciones.map((opcion) => (
+              <option key={opcion.id ?? opcion} value={opcion.id ?? opcion}>
+                {opcion.nombre ?? opcion}
               </option>
             ))}
           </select>

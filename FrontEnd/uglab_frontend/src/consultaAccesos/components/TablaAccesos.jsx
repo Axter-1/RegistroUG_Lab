@@ -4,17 +4,17 @@ const COLUMNAS = [
   'NUA',
   'Laboratorio',
   'Fecha',
-  'Entrada',
-  'Salida',
+  'Hora entrada',
+  'Hora salida',
   'Estado de salida',
-  'UDA o razón',
-  'Origen',
+  'UDA o Razón',
+  'Origen del registro',
   'Acciones',
 ]
 
 /**
- * @param {boolean} esAdmin  El docente solo edita observaciones; corregir hora
- *                           y anular son acciones de administrador.
+ * @param {boolean} esAdmin  El docente solo añade observaciones; corregir hora
+ *                           y anular son acciones del encargado de laboratorio.
  */
 export default function TablaAccesos({ filas, esAdmin = true, onAccion }) {
   if (filas.length === 0) {
@@ -39,7 +39,7 @@ export default function TablaAccesos({ filas, esAdmin = true, onAccion }) {
         <tbody>
           {filas.map((fila, indice) => (
             <tr
-              key={`${fila.nua}-${fila.fecha}-${fila.entrada}-${fila.laboratorio}-${indice}`}
+              key={fila.id ?? `${fila.nua}-${fila.fecha}-${fila.entrada}-${fila.laboratorio}-${indice}`}
               className={fila.anulado ? 'fila--anulada' : undefined}
             >
 
@@ -50,12 +50,12 @@ export default function TablaAccesos({ filas, esAdmin = true, onAccion }) {
               <td className="celda-hora">{fila.salida ?? '—'}</td>
               <td>
                 <span className={`estado estado--${fila.estadoSalida}`}>
-                  {ETIQUETAS_ESTADO[fila.estadoSalida]}
+                  {ETIQUETAS_ESTADO[fila.estadoSalida] ?? fila.estadoSalida}
                 </span>
               </td>
-              <td>{fila.udaRazon}</td>
+              <td>{fila.udaRazon || '—'}</td>
               <td>
-                <span className={`origen origen--${fila.origen.toLowerCase()}`}>{fila.origen}</span>
+                <span className={`origen origen--${(fila.origen || '').toLowerCase()}`}>{fila.origen || '—'}</span>
               </td>
               <td className="celda-acciones">
                 <button type="button" className="accion" onClick={() => onAccion?.('obs', fila)}>
@@ -66,7 +66,7 @@ export default function TablaAccesos({ filas, esAdmin = true, onAccion }) {
                   type="button"
                   className="accion"
                   disabled={!esAdmin}
-                  title={esAdmin ? undefined : 'Solo el administrador puede corregir la hora'}
+                  title={esAdmin ? undefined : 'Solo el encargado puede corregir la hora'}
                   onClick={() => onAccion?.('hora', fila)}
                 >
                   Hora
@@ -76,7 +76,7 @@ export default function TablaAccesos({ filas, esAdmin = true, onAccion }) {
                   type="button"
                   className="accion accion--anular"
                   disabled={!esAdmin || fila.anulado}
-                  title={esAdmin ? undefined : 'Solo el administrador puede anular'}
+                  title={esAdmin ? undefined : 'Solo el encargado puede anular'}
                   onClick={() => onAccion?.('anular', fila)}
                 >
                   Anular

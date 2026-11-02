@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import BarraLateral from './components/BarraLateral'
+import BarraLateral from '../components/BarraLateral'
 import Filtros from './components/Filtros'
 import TablaAccesos from './components/TablaAccesos'
 import { cargarAccesos } from './datos'

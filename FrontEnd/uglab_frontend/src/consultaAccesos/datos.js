@@ -4,7 +4,7 @@
 
 export const accesosDemo = [
   {
-    nua: '000001',
+    nua: '123456',
     laboratorio: 'Lab. 1',
     fecha: '15/10/2026',
     entrada: '10:02',
@@ -17,7 +17,7 @@ export const accesosDemo = [
     anulado: false,
   },
   {
-    nua: '000002',
+    nua: '654321',
     laboratorio: 'Lab. 1',
     fecha: '15/10/2026',
     entrada: '10:05',

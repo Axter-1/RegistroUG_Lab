@@ -16,6 +16,9 @@ root.render(
         <Routes>
           <Route path="/" element={<LoginPage />} />
           <Route path="accesos" element={<App />} />
+          <Route path="agendas" element={<App />} />
+          <Route path="reportes" element={<App />} />
+          <Route path="administracion" element={<App />} />
           <Route path="usuarios" element={<Usuarios />} />
         </Routes>
       </BrowserRouter>

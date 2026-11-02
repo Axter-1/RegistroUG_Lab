@@ -79,6 +79,7 @@
 }
 
 .barra__enlace {
+  display: block;
   width: 100%;
   padding: 11px 14px;
   font: inherit;
@@ -90,6 +91,12 @@
   border-radius: 9px;
   cursor: pointer;
   transition: background 120ms ease, color 120ms ease;
+  text-decoration: none;
+}
+
+.barra__enlace:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
 .barra__enlace:hover {

@@ -1,5 +1,78 @@
 import { api } from "../api/axiosClient";
 
+/**
+ * Estos datos son de ejemplo, se usaron para pruebas de interfaz.
+ */
+
+export const accesosDemo = [
+  {
+    nua: '123456',
+    laboratorio: 'Lab. 1',
+    fecha: '15/10/2026',
+    entrada: '10:02',
+    salida: null,
+    estadoSalida: 'no-aplica',
+    udaRazon: 'UDA 1 · 1°A',
+    grupo: '1°A',
+    uda: 'UDA 1',
+    origen: 'QR',
+    anulado: false,
+  },
+  {
+    nua: '654321',
+    laboratorio: 'Lab. 1',
+    fecha: '15/10/2026',
+    entrada: '10:05',
+    salida: null,
+    estadoSalida: 'no-aplica',
+    udaRazon: 'Sin reserva vigente',
+    grupo: null,
+    uda: null,
+    origen: 'QR',
+    anulado: false,
+  },
+  {
+    nua: '000003',
+    laboratorio: 'Lab. 2',
+    fecha: '15/10/2026',
+    entrada: '11:00',
+    salida: '11:48',
+    estadoSalida: 'registrada',
+    udaRazon: 'UDA 2 · 2°B',
+    grupo: '2°B',
+    uda: 'UDA 2',
+    origen: 'Manual',
+    anulado: false,
+  },
+  {
+    nua: '000004',
+    laboratorio: 'Lab. 2',
+    fecha: '15/10/2026',
+    entrada: '11:03',
+    salida: null,
+    estadoSalida: 'cerrada-por-nuevo',
+    udaRazon: 'Proyecto',
+    grupo: null,
+    uda: null,
+    origen: 'QR',
+    anulado: false,
+  },
+  // Registro anulado — oculto salvo que marques "Incluir anulados".
+  {
+    nua: '000005',
+    laboratorio: 'Lab. 1',
+    fecha: '15/10/2026',
+    entrada: '09:40',
+    salida: null,
+    estadoSalida: 'no-aplica',
+    udaRazon: 'Registro duplicado',
+    grupo: '1°A',
+    uda: 'UDA 1',
+    origen: 'Manual',
+    anulado: true,
+  },
+]
+
 export const ETIQUETAS_ESTADO = {
   pendiente: "Pendiente",
   "no-aplica": "No aplica",

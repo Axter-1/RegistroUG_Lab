@@ -4,7 +4,6 @@ import reportWebVitals from './reportWebVitals';
 
 import LoginPage from './LoginPage';
 import App from './App';
-import ConsultaAccesos from './consultaAccesos/ConsultaAccesos';
 
 import { IsLogged } from "./context/AuthContext";
 import { BrowserRouter , Routes, Route, Navigate} from "react-router";
@@ -18,10 +17,13 @@ root.render(
           <Route path="/" element={<LoginPage />} />
 
           <Route element={<IsLogged requiredRole={[2, 3]} />}>
-            <Route path="accesos" element={<ConsultaAccesos />} />
+            <Route path="accesos" element={<App />} />
           </Route>
 
-          <Route path="*" element={<Navigate to="/"></Navigate>}/>
+          <Route path="agendas" element={<App />} />
+          <Route path="reportes" element={<App />} />
+          <Route path="administracion" element={<App />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
   </React.StrictMode>

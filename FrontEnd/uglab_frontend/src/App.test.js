@@ -36,3 +36,51 @@ test('renders the access consultation page at /accesos', async () => {
     window.history.pushState({}, '', rutaAnterior);
   }
 });
+
+test('renders the weekly agenda at /agendas', async () => {
+  const rutaAnterior = window.location.pathname;
+  window.history.pushState({}, '', '/agendas');
+
+  try {
+    render(
+      <AuthProvider>
+        <App />
+      </AuthProvider>
+    );
+    expect(await screen.findByRole('heading', { name: /agenda semanal/i })).toBeInTheDocument();
+  } finally {
+    window.history.pushState({}, '', rutaAnterior);
+  }
+});
+
+test('renders reports at /reportes', async () => {
+  const rutaAnterior = window.location.pathname;
+  window.history.pushState({}, '', '/reportes');
+
+  try {
+    render(
+      <AuthProvider>
+        <App />
+      </AuthProvider>
+    );
+    expect(await screen.findByRole('heading', { name: 'Reportes' })).toBeInTheDocument();
+  } finally {
+    window.history.pushState({}, '', rutaAnterior);
+  }
+});
+
+test('renders administration at /administracion', async () => {
+  const rutaAnterior = window.location.pathname;
+  window.history.pushState({}, '', '/administracion');
+
+  try {
+    render(
+      <AuthProvider>
+        <App />
+      </AuthProvider>
+    );
+    expect(await screen.findByRole('heading', { name: 'Administración' })).toBeInTheDocument();
+  } finally {
+    window.history.pushState({}, '', rutaAnterior);
+  }
+});

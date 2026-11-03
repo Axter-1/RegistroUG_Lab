@@ -1,3 +1,5 @@
+import _thread
+
 class ThreadSafeQueue:
     def __init__(self, maxsize=10):
         self._queue = []

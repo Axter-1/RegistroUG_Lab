@@ -24,37 +24,25 @@ class APIHandler:
 
     def send_request(self, qr_text):
         nua = self.extract_nua(qr_text)
-        
-        if not nua:
+
+        if not nua or not nua.isdigit() or len(nua) > 8 or not (1 <= int(nua) <= 16777215):
             print("[API] Ignorando envío: NUA no válido.")
             return False
 
-        # Body JSON que se enviará al servidor
-        payload = {
-            "nua": nua,
-            "auth": "admin",
-            "pwd": "p4ssw0rd"
+        url = self.api_endpoint.rstrip("/") + "/api/accesos/qr?NUA=" + nua
+        headers = {
+            "X-Device-Token": "0175f20e8c433a3ed0d9a01d4425d5045e9bda9d0394377211c9ebd599854986"
         }
-
-        print(f"[API] Enviando NUA '{nua}' a {self.api_endpoint}...")
 
         response = None
         try:
-            response = urequests.post(
-                self.api_endpoint,
-                json=payload,
-                headers=self.headers
-            )
+            response = urequests.post(url, headers=headers)
             print(f"[API] Estado HTTP: {response.status_code}")
             print(f"[API] Respuesta: {response.text}")
-            
-            status = response.status_code
-            return (200 <= status < 300)
-
+            return 200 <= response.status_code < 300
         except Exception as e:
             print(f"[API] Error de conexión: {e}")
             return False
-
         finally:
             if response:
                 response.close()

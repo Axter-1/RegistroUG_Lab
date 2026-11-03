@@ -12,8 +12,6 @@ except ImportError:
 
 __all__ = ["JSONDecoder"]
 
-FLAGS = re.VERBOSE | re.MULTILINE | re.DOTALL
-
 NaN, PosInf, NegInf = float("nan"), float("inf"), float("-inf")
 
 
@@ -52,7 +50,7 @@ _CONSTANTS = {
 }
 
 
-STRINGCHUNK = re.compile(r'(.*?)(["\\\x00-\x1f])', FLAGS)
+STRINGCHUNK = re.compile(r'(.*?)(["\\\x00-\x1f])')
 BACKSLASH = {
     '"': '"',
     "\\": "\\",
@@ -137,7 +135,7 @@ def py_scanstring(s, end, strict=True, _b=BACKSLASH, _m=STRINGCHUNK.match):
 # Use speedup if available
 scanstring = c_scanstring or py_scanstring
 
-WHITESPACE = re.compile(r"[ \t\n\r]*", FLAGS)
+WHITESPACE = re.compile(r"[ \t\n\r]*")
 WHITESPACE_STR = " \t\n\r"
 
 

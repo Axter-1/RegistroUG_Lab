@@ -1,12 +1,3 @@
--- Crear un usuario -> % Desde cualquier orignen
-CREATE USER 'nombre_usuario'@'localhost' IDENTIFIED BY 'tu_contraseña';
--- Dar solo permisos de lectura (SELECT) e inserción (INSERT)
-GRANT SELECT, INSERT ON nombre_bd.* TO 'nombre_usuario'@'localhost';
--- Aplicar los cambios de privilegios inmediatamente
-FLUSH PRIVILEGES;
-
-DROP USER 'nombre_usuario'@'localhost';
-
 create table if not exists Rol (
     id_rol TINYINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     descripcion VARCHAR(40) NOT NULL UNIQUE

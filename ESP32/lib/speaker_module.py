@@ -2,9 +2,9 @@ from machine import I2S, Pin
 import time
 
 # 1. Configurar los pines I2S
-sck_pin = Pin(26)  # BCLK
-ws_pin = Pin(25)   # LRC
-sd_pin = Pin(22)   # DIN
+sck_pin = Pin(18)  # BCLK
+ws_pin = Pin(19)   # LRC
+sd_pin = Pin(21)   # DIN
 
 # 2. Inicializar el periférico I2S en el ESP32 (I2S canal 0)
 audio_out = I2S(

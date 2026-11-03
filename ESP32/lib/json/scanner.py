@@ -9,9 +9,8 @@ except ImportError:
 
 __all__ = ["make_scanner"]
 
-NUMBER_RE = re.compile(
-    r"(-?(?:0|[1-9]\d*))(\.\d+)?([eE][-+]?\d+)?", (re.VERBOSE | re.MULTILINE | re.DOTALL)
-)
+NUMBER_RE = re.compile(r"(-?(?:0|[1-9]\d*))(\.\d+)?([eE][-+]?\d+)?")
+
 
 
 def py_make_scanner(context):

@@ -30,6 +30,6 @@ router.post(
   requireRoles('Docente', 'Encargado de laboratorio'),
   addObservation,
 );
-router.post('/api/accesos/qr', requireDevice, registerQrAccess);
+router.post('/api/accesos/qr',()=>{console.log("si llega")}, requireDevice, registerQrAccess);
 
 export { router };

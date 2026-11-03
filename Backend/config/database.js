@@ -1,6 +1,6 @@
 import { createPool } from 'mysql2/promise';
 
-const env_vars = ['MYSQL_HOST', 'MYSQL_USER', 'MYSQL_NAME'];
+const env_vars = ['MYSQL_HOST', 'MYSQL_USER', 'MYSQL_PASSWORD', 'MYSQL_NAME'];
 const missingEnvironmentVariables = env_vars.filter(
   (name) => !process.env[name],
 );
@@ -20,9 +20,9 @@ if (!Number.isInteger(port) || port < 1 || port > 65535) {
 export const conexion = createPool({
   host: process.env.MYSQL_HOST,
   port,
-  user: 'root' || process.env.MYSQL_USER,
-  password: 'secret_password' || process.env.MYSQL_PASSWORD || process.env.MYSQL_ROOT_PASSWORD || '',
-  database: process.env.MYSQL_NAME || process.env.MYSQL_DATABASE,
+  user: process.env.MYSQL_USER,
+  password: process.env.MYSQL_PASSWORD,
+  database: process.env.MYSQL_NAME,
   waitForConnections: true,
   connectionLimit: 10,
 });

@@ -4,6 +4,7 @@ import { fromNodeHeaders } from "better-auth/node";
 
 process.env.MYSQL_HOST = "127.0.0.1";
 process.env.MYSQL_USER = "test";
+process.env.MYSQL_PASSWORD = "test";
 process.env.MYSQL_NAME = "test";
 process.env.BETTER_AUTH_SECRET = "unit_test_secret_that_is_at_least_32_characters";
 
@@ -105,6 +106,7 @@ test("valida los datos para registrar un escáner", () => {
   assert.deepEqual(parseScannerInput({ id_laboratorio: "12", nombre: "Entrada norte" }), {
     idLaboratorio: 12,
     nombre: "Entrada norte",
+    activo: false,
   });
   assert.deepEqual(parseScannerInput({ id_laboratorio: 1 }), {
     idLaboratorio: 1,

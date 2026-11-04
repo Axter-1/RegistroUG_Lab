@@ -17,9 +17,9 @@ root.render(
           <Route path="/" element={<LoginPage />} />
 
           <Route element={<IsLogged requiredRole={[2, 3]} />}>
-            <Route path="accesos" element={<App />} />
           </Route>
 
+            <Route path="accesos" element={<App />} />
           <Route path="agendas" element={<App />} />
           <Route path="reportes" element={<App />} />
           <Route path="administracion" element={<App />} />

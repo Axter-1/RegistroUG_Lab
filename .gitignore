@@ -1,6 +1,6 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-/FrontEnd/uglab_frontend/node_modules
+/Frontend/node_modules
 /Backend/node_modules
 /Backend/.pnpm-store
 
@@ -14,7 +14,7 @@
 
 # production
 /build
-/FrontEnd/uglab_frontend/build/
+/Frontend/build/
 
 # misc
 .DS_Store

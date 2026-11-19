@@ -6,6 +6,7 @@ import {
   editAccess,
   listAccess,
 } from '../controllers/accessController.js';
+import { generateReport } from '../controllers/reportController.js';
 import { registerQrAccess } from '../controllers/scannerController.js';
 import { createScanner } from '../controllers/scannerManagementController.js';
 import { requireSession } from '../middleware/authMiddleware.js';
@@ -31,5 +32,7 @@ router.post(
   addObservation,
 );
 router.post('/api/accesos/qr',()=>{console.log("si llega")}, requireDevice, registerQrAccess);
+
+router.get('/api/reporte/generar/:fechaInicio/:fechaFin', requireSession, requireRoles('Encargado de laboratorio'), generateReportByDate);
 
 export { router };

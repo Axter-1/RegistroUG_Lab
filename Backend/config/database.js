@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import { createPool } from 'mysql2/promise';
 
 const env_vars = ['MYSQL_HOST', 'MYSQL_USER', 'MYSQL_PASSWORD', 'MYSQL_NAME'];
